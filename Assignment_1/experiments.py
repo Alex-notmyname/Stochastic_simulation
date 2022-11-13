@@ -4,30 +4,14 @@ import numpy as np
 from multiprocessing import Pool
 import pandas as pd
 
-# s_length = 100
-# s_start = 100
-# s_step = 100
-# s1 = s_length * s_step  # The biggest s value
-# s_list = np.arange(0, s_length) * s_step + s_start  # the list containing s values
+# Note! This will slow down the computation a little bit,
+# but it can solve the Numpy Runtime warning!
+is_in = np.vectorize(is_in)
 
-'''
-The Orthogonal sampling method from scipy can only work with sampling size = p**2,
-where p is a prime number. May apply a different method in future.
-'''
-# get prime numbers
-def primes_method(n):
-    out = list()
-    sieve = [True] * (n+1)
-    for p in range(2, n+1):
-        if (sieve[p] and sieve[p]%2==1):
-            out.append(p)
-            for i in range(p, n+1, p):
-                sieve[i] = False
-    return out
-
-s_list = np.array(primes_method(100)) ** 2
-s_list = np.delete(s_list, 0)
-s1 = s_list[-1]
+# Note the actual sampling space is s**2!
+s1 = 100
+s_start = 5
+s_list = np.arange(s_start, s1+1, step=1, dtype=int)  # the list containing s values
 s_length = len(s_list)
 
 ite = 60
@@ -37,7 +21,8 @@ ite_list = np.arange(1, ite+1, dtype=int)
 
 def mandelbrot_sampling():
     '''i experiment'''
-    mand_area_i = [np.zeros(ite), np.zeros(ite), np.zeros(ite)]
+    mand_area_i = [np.zeros(ite, dtype=np.float64), np.zeros(ite, dtype=np.float64), \
+        np.zeros(ite, dtype=np.float64)]
     for i in range(ite):
         # initialize the sampling points (random sampling)
         c_MC = Monte_carlo_sampling(s1, circle='N')
@@ -46,11 +31,12 @@ def mandelbrot_sampling():
         C = [c_MC, c_LHS, c_OS]
         # compute the mandelbrot set area
         for j, c in enumerate(C):
-            mand_area = (is_in(c, ite_list[i]).sum()/s1) * np.pi * 4
+            mand_area = (is_in(c, ite_list[i]).sum()/s1**2) * np.pi * 4
             mand_area_i[j][i] = mand_area
 
     '''s experiment'''
-    mand_area_s = [np.zeros(s_length), np.zeros(s_length), np.zeros(s_length)]
+    mand_area_s = [np.zeros(s_length, dtype=np.float64), np.zeros(s_length, dtype=np.float64), \
+        np.zeros(s_length, dtype=np.float64)]
     for i in range(s_length):
         # initialize the sampling points (random sampling)
         c_MC = Monte_carlo_sampling(s_list[i], circle='N')
@@ -59,7 +45,7 @@ def mandelbrot_sampling():
         C = [c_MC, c_LHS, c_OS]
         # compute the mandelbrot set area
         for j, c in enumerate(C):
-            mand_area = (is_in(c, ite).sum()/s_list[i]) * np.pi * 4
+            mand_area = (is_in(c, ite).sum()/s_list[i]**2) * np.pi * 4
             mand_area_s[j][i] = mand_area
 
     return mand_area_i, mand_area_s
@@ -92,7 +78,7 @@ if __name__ == '__main__':
                                 's_method': [s_methods[j]] * ite})
             df_ite = pd.concat([df_ite, df_i], ignore_index=True)
 
-            df_s = pd.DataFrame({'num_s': s_list, \
+            df_s = pd.DataFrame({'num_s': s_list**2, \
                                 'area': MAND_AREA[i][1][j], \
                                 'repetition': np.repeat(i+1, s_length), \
                                 's_method': [s_methods[j]] * s_length})
