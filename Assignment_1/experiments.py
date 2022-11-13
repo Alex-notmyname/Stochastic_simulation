@@ -4,10 +4,6 @@ import numpy as np
 from multiprocessing import Pool
 import pandas as pd
 
-# Note! This will slow down the computation a little bit,
-# but it can solve the Numpy Runtime warning!
-is_in = np.vectorize(is_in)
-
 # Note the actual sampling space is s**2!
 s1 = 100
 s_start = 5
@@ -57,6 +53,7 @@ if __name__ == '__main__':
     # repeat experiments for 10 times (stochasticity)
     repetition = 10
     MAND_AREA = pool.starmap(mandelbrot_sampling, [() for _ in range(repetition)])
+    pool.close()
     # Note the shape of MAND_AREA: a 3d list, the first dimension: [rep_1, rep_2, ..., rep_n],
     # the second dimension: (mand_area_i, mand_area_s),
     # the thrid dimension: (area_MC, area_LHS, area_OS).

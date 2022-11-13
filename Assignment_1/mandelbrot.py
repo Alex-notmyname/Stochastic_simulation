@@ -1,14 +1,17 @@
 import numpy as np
 from numpy import random
 from scipy.stats import qmc
+import warnings
+
+# treat warnings as error
+warnings.filterwarnings("error")
 
 def is_in(c, num_iterations):
     z = 0.0
     for _ in range(num_iterations):
-        z = z ** 2 + c
-
-        # avoid Runtime warning
-        if abs(z) > 2:
+        try:
+            z = z ** 2 + c
+        except RuntimeWarning:  # for handling very large z values
             break
 
     return abs(z) <= 2   # True or False?
