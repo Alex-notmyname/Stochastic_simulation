@@ -4,15 +4,15 @@ from scipy.stats import qmc
 import warnings
 
 # treat warnings as error
-warnings.filterwarnings("error")
+# warnings.filterwarnings("error")
 
 def is_in(c, num_iterations):
     z = 0.0
     for _ in range(num_iterations):
-        try:
-            z = z ** 2 + c
-        except RuntimeWarning:  # for handling very large z values
-            break
+        # try:
+        z = z ** 2 + c
+        # except RuntimeWarning:  # for handling very large z values
+        #     break
 
     return abs(z) <= 2   # True or False?
 
@@ -48,8 +48,6 @@ def Latin_hypercube_sampling(num):
 def Orthogonal_Latin_hypercube_sampling(num):
     n_samples = num**2
     scales = 4.0 / n_samples
-
-    x_list, y_list = np.zeros((num, num)), np.zeros((num, num))
 
     M = np.arange(start=0, stop=n_samples, step=1, dtype=int).reshape((num, num))
     x_list, y_list = M, M
