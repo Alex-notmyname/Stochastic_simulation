@@ -79,7 +79,7 @@ if __name__ == '__main__':
     # MAND_AREA_LHS = MAND_AREA[:][:][1]
     # MAND_AREA_OS = MAND_AREA[:][:][2]
 
-    s_methods = ['MC', 'LHS', 'OS', 'MC_c']
+    s_methods = ['Monte Carlo', 'Latin Hypercube', 'Orthogonal Sampling', 'Circular Monte Carlo']
 
     df_ite = pd.DataFrame(columns=['iteration', 'area', 'repetition'])
     df_sampling = pd.DataFrame(columns=['num_s', 'area', 'repetition'])
