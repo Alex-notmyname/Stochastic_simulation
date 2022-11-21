@@ -17,17 +17,25 @@ def is_in(c, num_iterations):
     return abs(z) <= 2   # True or False?
 
 
-def Monte_carlo_sampling(num, R=2, circle='N'): # Monte Carlo sampling
+def Monte_carlo_sampling(num, R=2, circle='N', half='N'): # Monte Carlo sampling
     if circle == 'Y':
-        r = R * np.sqrt(random.random_sample(size=num**2))  # random radius
-        theta = random.random_sample(size=num**2) * 2 * np.pi  # random angel
+        if half == 'Y':
+            r = R * np.sqrt(random.random_sample(size=num**2))  # random radius
+            theta = random.random_sample(size=num**2) * np.pi  # random angel
+        else:
+            r = R * np.sqrt(random.random_sample(size=num**2))  # random radius
+            theta = random.random_sample(size=num**2) * 2 * np.pi  # random angel
 
         # convert to Cartesian coordinates and map to a complex plane
         c_array = r * np.cos(theta) + 1j * r * np.sin(theta)
 
     else:
-        x = 4 * random.random_sample(size=num**2) - 2  # scale from [0, 1] to [-2, 2]
-        y = 4 * random.random_sample(size=num**2) - 2  # scale from [0, 1] to [-2, 2]
+        if half == 'Y':
+            x = 4 * random.random_sample(size=num**2) -2  # scale from [0, 1] to [-2, 2]
+            y = 2 * random.random_sample(size=num**2)     # scale from [0, 1] to [0, 2]
+        else:
+            x = 4 * random.random_sample(size=num**2) - 2  # scale from [0, 1] to [-2, 2]
+            y = 4 * random.random_sample(size=num**2) - 2  # scale from [0, 1] to [-2, 2]
 
         c_array = x + 1j * y
 
@@ -41,9 +49,8 @@ def Latin_hypercube_sampling(num):
     sampler = qmc.LatinHypercube(d=2, strength=1)
     c_array = sampler.random(n=num**2)
     c_array = qmc.scale(c_array, l_bounds, u_bounds)
-    c_array = c_array[:, 0] + 1j * c_array[:, 1]
 
-    return c_array
+    return c_array[:, 0] + 1j * c_array[:, 1]
 
 def Orthogonal_Latin_hypercube_sampling(num):
     n_samples = num**2
@@ -61,6 +68,4 @@ def Orthogonal_Latin_hypercube_sampling(num):
     x = -2 + scales * (x_list.flatten() + random.random_sample(size=num**2))
     y = -2 + scales * (y_list.transpose().flatten() + random.random_sample(size=num**2))
 
-    c_array = x + 1j * y
-
-    return c_array
+    return x + 1j * y

@@ -20,42 +20,59 @@ sampling_i = 20
 
 def mandelbrot_sampling():
     '''i experiment'''
-    mand_area_i = [np.zeros(i_length, dtype=np.float64), np.zeros(i_length, dtype=np.float64), \
-        np.zeros(i_length, dtype=np.float64), np.zeros(i_length, dtype=np.float64)]
+    # mand_area_i = [np.zeros(i_length, dtype=np.float64), np.zeros(i_length, dtype=np.float64), \
+    #     np.zeros(i_length, dtype=np.float64), np.zeros(i_length, dtype=np.float64), \
+    #     np.zeros(i_length, dtype=np.float64), np.zeros(i_length, dtype=np.float64)]
+    mand_area_i = np.concatenate([np.zeros(i_length, dtype=np.float64)[np.newaxis, :]] * 6)
     # mand_area_i = [np.zeros(ite, dtype=np.float64)] * 3
     for i in range(i_length):
         # initialize the sampling points (random sampling)
         c_MC = Monte_carlo_sampling(sampling_i, circle='N')
         c_LHS = Latin_hypercube_sampling(sampling_i)
         c_OS = Orthogonal_Latin_hypercube_sampling(sampling_i)
-        c_MC_c = Monte_carlo_sampling(sampling_i, circle='Y')
         C = [c_MC, c_LHS, c_OS]
         # compute the mandelbrot set area
         for j, c in enumerate(C):
             mand_area = (is_in(c, ite_list[i]).sum()/sampling_i**2) * 16
             mand_area_i[j][i] = mand_area
+
         # new method
-        mand_area = (is_in(c_MC_c, ite_list[i]).sum()/sampling_i**2) * np.pi * 4
-        mand_area_i[3][i] = mand_area
+        c_MC_c = Monte_carlo_sampling(sampling_i, circle='Y')
+        mand_area_circle = (is_in(c_MC_c, ite_list[i]).sum()/sampling_i**2) * np.pi * 4
+        mand_area_i[3][i] = mand_area_circle
+        c_MC_h = Monte_carlo_sampling(sampling_i, circle='N', half='Y')
+        mand_area_half = (is_in(c_MC_h, ite_list[i]).sum()/sampling_i**2) * 16
+        mand_area_i[4][i] = mand_area_half
+        c_MC_hc = Monte_carlo_sampling(sampling_i, circle='Y', half='Y')
+        mand_area_halfcircle = (is_in(c_MC_hc, ite_list[i]).sum()/sampling_i**2) * np.pi * 4
+        mand_area_i[5][i] = mand_area_halfcircle
 
     '''s experiment'''
-    mand_area_s = [np.zeros(s_length, dtype=np.float64), np.zeros(s_length, dtype=np.float64), \
-        np.zeros(s_length, dtype=np.float64), np.zeros(s_length, dtype=np.float64)]
+    # mand_area_s = [np.zeros(s_length, dtype=np.float64), np.zeros(s_length, dtype=np.float64), \
+    #     np.zeros(s_length, dtype=np.float64), np.zeros(s_length, dtype=np.float64)]
+    mand_area_s = np.concatenate([np.zeros(s_length, dtype=np.float64)[np.newaxis, :]] * 6)
     # mand_area_s = [np.zeros(s_length, dtype=np.float64)] * 3
     for i in range(s_length):
         # initialize the sampling points (random sampling)
         c_MC = Monte_carlo_sampling(s_list[i], circle='N')
         c_LHS = Latin_hypercube_sampling(s_list[i])
         c_OS = Orthogonal_Latin_hypercube_sampling(s_list[i])
-        c_MC_c = Monte_carlo_sampling(s_list[i], circle='Y')
         C = [c_MC, c_LHS, c_OS]
         # compute the mandelbrot set area
         for j, c in enumerate(C):
             mand_area = (is_in(c, ite_s).sum()/s_list[i]**2) * 16
             mand_area_s[j][i] = mand_area
+
         # new method
-        mand_area = (is_in(c_MC_c, ite_s).sum()/s_list[i]**2) * np.pi * 4
-        mand_area_s[3][i] = mand_area
+        c_MC_c = Monte_carlo_sampling(s_list[i], circle='Y')
+        mand_area_circle = (is_in(c_MC_c, ite_s).sum()/s_list[i]**2) * np.pi * 4
+        mand_area_s[3][i] = mand_area_circle
+        c_MC_h = Monte_carlo_sampling(s_list[i], circle='N', half='Y')
+        mand_area_half = (is_in(c_MC_h, ite_s).sum()/s_list[i]**2) * 16
+        mand_area_s[4][i] = mand_area_half
+        c_MC_hc = Monte_carlo_sampling(s_list[i], circle='Y', half='Y')
+        mand_area_halfcircle = (is_in(c_MC_hc, ite_s).sum()/s_list[i]**2) * np.pi * 4
+        mand_area_s[5][i] = mand_area_halfcircle
 
     return mand_area_i, mand_area_s
 
@@ -66,7 +83,7 @@ if __name__ == '__main__':
     pool = Pool()
 
     # repeat experiments for 10 times (stochasticity)
-    repetition = 100
+    repetition = 170
     MAND_AREA = pool.starmap(mandelbrot_sampling, [() for _ in range(repetition)])
     pool.close()
 
@@ -79,7 +96,8 @@ if __name__ == '__main__':
     # MAND_AREA_LHS = MAND_AREA[:][:][1]
     # MAND_AREA_OS = MAND_AREA[:][:][2]
 
-    s_methods = ['Monte Carlo', 'Latin Hypercube', 'Orthogonal Sampling', 'Circular Monte Carlo']
+    s_methods = ['Monte Carlo', 'Latin Hypercube', 'Orthogonal Sampling', 'Monte Carlo Circle', \
+                 'Monte Carlo half', 'Monte Carlo half Circle']
 
     df_ite = pd.DataFrame(columns=['iteration', 'area', 'repetition'])
     df_sampling = pd.DataFrame(columns=['num_s', 'area', 'repetition'])
