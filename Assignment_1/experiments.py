@@ -83,7 +83,7 @@ if __name__ == '__main__':
     pool = Pool()
 
     # repeat experiments for 10 times (stochasticity)
-    repetition = 170
+    repetition = 150
     MAND_AREA = pool.starmap(mandelbrot_sampling, [() for _ in range(repetition)])
     pool.close()
 
