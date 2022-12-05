@@ -14,20 +14,20 @@ SERVICE_TIME = 1
 RHO_list = [0.85, 0.9, 0.95, 0.99]
 
 class Customer():
-    """_summary_
+    """_Start one simpy simulation_
     """
 
     def __init__(self, env, customers, arrive_rate, mu, servers, \
                  kendall_notation='M/M/n', SJF=False):
-        """_summary_
+        """_Instantiate the Customer class_
 
         Args:
-            env (_simpy.Environment()_): _description_
-            customers (_type_): _description_
-            arrive_rate (_type_): _description_
-            mu (_type_): _description_
-            servers (_type_): _description_
-            SJF (bool, optional): _description_. Defaults to False.
+            env (_simpy.Environment()_): _simpy.Environment()_
+            customers (_int_): _Number of customers in total_
+            arrive_rate (_float_): _Arrival rate of new customer (lambda)_
+            mu (_float_): _service rate (mu)_
+            servers (_simpy.Resource()_): _simpy.Resource()_
+            SJF (bool, optional): _Shortest Job First Policy?_. Defaults to False.
         """
         self.env = env
         # Start the run process everytime an instance is created.
@@ -48,18 +48,19 @@ class Customer():
         self.SJF = SJF
 
     def customer(self, env, name, servers, mu):
-        """_summary_
+        """_Generate an instance of a customer and
+            add it to the queue_
 
         Args:
-            env (_type_): _description_
-            name (_type_): _description_
-            servers (_type_): _description_
-            mu (_type_): _description_
+            env _simpy.Environment()_): _simpy.Environment()_
+            name (_int_): _the sequence of customer_
+            servers (_simpy.Resource()_): _simpy.Resource()_
+            mu (_float_): _service rate (mu)_
 
         Yields:
-            _type_: _description_
+            _simpy.Environment().timeout()_: _Occupy the server
+            until the service is completed_
         """
-
         arrive = env.now
         # print('%7.4f %s: Here I am' % (arrive, name))
 
@@ -103,10 +104,11 @@ class Customer():
                 # print('%7.4f %s: Finished' % (env.now, name))
 
     def source(self):
-        """_summary_
+        """_Add new customers to the system until no customers left_
 
         Yields:
-            _type_: _description_
+            _simpy.Environment().timeout()_: _Occupy the queue
+            until new customer join the queue_
         """
 
         for i in range(self.customers):
@@ -118,14 +120,11 @@ class Customer():
 
 
 def Q2_main():
-    """_summary_
+    """_Experiments for the question 2_
 
     Returns:
-        _type_: _description_
+        _np.ndarray_: _A np.ndarray contains waiting time for each customer_
     """
-
-    # random.seed(RANDOM_SEED)
-
     n_servers = [1, 2, 4]
     W_rho = []
 
@@ -151,13 +150,11 @@ def Q2_main():
 
 
 def Q3_main():
-    """_summary_
+    """_Experiments for the question 3_
 
     Returns:
-        _type_: _description_
+        _np.ndarray_: _A np.ndarray contains waiting time for each customer_
     """
-    
-
     W = np.concatenate([np.zeros(CUSTOMERS, dtype=np.float64)[np.newaxis, :]] * len(RHO_list))
 
     for i, rho in enumerate(RHO_list):
@@ -178,14 +175,11 @@ def Q3_main():
 
 
 def Q4_main():
-    """_summary_
+    """_Experiments for the question 3_
 
     Returns:
-        _type_: _description_
+        _np.ndarray_: _A np.ndarray contains waiting time for each customer_
     """
-
-    # random.seed(RANDOM_SEED)
-
     n_servers = [1, 2, 4]
 
     W = np.concatenate([np.zeros(CUSTOMERS, dtype=np.float64)[np.newaxis, :]] * 6)
@@ -234,16 +228,16 @@ if __name__ == '__main__':
     repetition = 100
     n_servers = [1, 2, 4]
     
-    # # Q2 Experiment
-    # W2 = pool.starmap(Q2_main, [() for _ in range(repetition)])
-    # W2 = np.array(W2)
-    # for i in range(3):
-    #     waiting_time = W2[:, i]
-    #     np.save('data/Q2/M_M_%s' % n_servers[i], waiting_time)
+    # Q2 Experiment
+    W2 = pool.starmap(Q2_main, [() for _ in range(repetition)])
+    W2 = np.array(W2)
+    for i in range(3):
+        waiting_time = W2[:, i]
+        np.save('data/Q2/M_M_%s' % n_servers[i], waiting_time)
 
-    # # Q3 Experiment
-    # W3 = pool.starmap(Q3_main, [() for _ in range(repetition)])
-    # np.save('data/Q3/M_M_1_priority', W3)
+    # Q3 Experiment
+    W3 = pool.starmap(Q3_main, [() for _ in range(repetition)])
+    np.save('data/Q3/M_M_1_priority', W3)
 
     # Q4 Experiment
     W4 = pool.starmap(Q4_main, [() for _ in range(repetition)])
